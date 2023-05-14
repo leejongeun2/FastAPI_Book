@@ -1,18 +1,19 @@
 # 세션 유지 > 세션 안에서 reuqest를 통해 데이터 긁어오기
-import requests  # 동기적코드
+import aiohttp
 import time
+import asyncio
 
 
-def fetcher(session, url):
-    with session.get(url) as response:
-        return response.text
+async def fetcher(session, url):
+    async with session.get(url) as response:
+        return await response.text()
 
 
-def main():
+async def main():
     urls = ["https://naver.com", "https://google.com", "https://instagram.com"] * 10
 
-    with requests.Session() as session:
-        result = [fetcher(session, url) for url in urls]  # with이 파일열고 닫아줌
+    async with aiohttp.ClientSession() as session:
+        result = await asyncio.gather(*[fetcher(session, url) for url in urls])
         print(result)
 
 
@@ -20,6 +21,6 @@ def main():
 
 if __name__ == "__main__":
     start = time.time()
-    main()
+    asyncio.run(main())
     end = time.time()
-    print(end - start)  # 12
+    print(end - start)  # 2.5
